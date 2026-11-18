@@ -1,15 +1,7 @@
-# Hacfard RemoteX — Codespaces stack
+# RemoteX server
 
-## Recovery
+The browser application is the custom HTML/CSS/JS workspace in `remotex/`. Nginx serves it on port 8080 and proxies Guacamole's `/api/` and `/websocket-tunnel` endpoints.
 
-Run `bash server/status.sh` for application/API/database diagnostics. Run `bash server/recover.sh` for a non-destructive repair. Recovery checks PostgreSQL readiness and the Guacamole schema, applies the official generated schema only when the Guacamole user table is absent, then restarts the application and gateway.
+The server starts a private TigerVNC desktop on `127.0.0.1:5901`. Connect to it by creating a VNC connection in Guacamole with a host reachable from `guacd` (usually the Codespace host network arrangement must be checked; do not assume container localhost is the host). The browser never connects directly to VNC.
 
-**Recovery does not remove Docker volumes, drop databases, reset users, or erase stored connections.**
-
-## Gateway
-
-Open private forwarded port 8080. Initial account is `guacadmin / guacadmin`; change it immediately after successful login. Keep ports private.
-
-## Limitations
-
-Guacamole can connect to reachable VNC, RDP, SSH, Telnet and Kubernetes targets when configured. This repository does not yet provision a Windows 10 VM. Codespaces may stop when idle.
+noVNC and websockify are no longer started or used as the browser UI. Keep the Guacamole gateway and all forwarded ports private.

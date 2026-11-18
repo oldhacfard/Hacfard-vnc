@@ -7,16 +7,19 @@
       "moby": true
     }
   },
-  "forwardPorts": [6080, 8080],
+  "forwardPorts": [
+    6080,
+    8080
+  ],
   "portsAttributes": {
     "6080": {
-      "label": "RemoteX VNC (noVNC)",
-      "onAutoForward": "notify",
+      "label": "Hacfard RemoteX — Custom UI",
+      "onAutoForward": "openBrowser",
       "visibility": "private"
     },
     "8080": {
-      "label": "RemoteX Gateway (Guacamole)",
-      "onAutoForward": "openBrowser",
+      "label": "RemoteX Gateway API (private)",
+      "onAutoForward": "notify",
       "visibility": "private"
     }
   },

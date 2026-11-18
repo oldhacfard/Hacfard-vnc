@@ -1,28 +1,58 @@
-# Hacfard RemoteX Ultimate
+<div align="center">
+  <img src="remotex/preview.svg" alt="Hacfard RemoteX custom workspace preview" width="100%">
+  <h1>Hacfard RemoteX</h1>
+  <p><strong>Custom remote desktop workspace · built by oldhacfard</strong></p>
+  <p>VNC · RDP · SSH · Mobile-first · Custom HTML/CSS/JS</p>
+</div>
 
-A mobile-first remote desktop client and Codespaces-ready remote-access stack.
+---
+
+## ✨ Overview
+
+Hacfard RemoteX is a self-hostable remote-access workspace with its own custom browser interface. The frontend is not the noVNC UI: it is a purpose-built HTML/CSS/JavaScript workspace. Apache Guacamole and guacd handle the remote protocols behind the interface.
+
+## Preview
+
+The image above is a static UI preview. Open the live app from the private Codespaces port **8080** after setup.
+
+## Features
+
+- Custom black-and-white inspired responsive interface
+- Gateway login and saved-connection list
+- Guacamole WebSocket tunnel for supported remote protocols
+- Fullscreen, connection state, session timer and touch-friendly layout
+- Linux XFCE desktop through a configured VNC connection
+- Windows guests through a configured RDP connection after Windows is installed and RDP is enabled
+- No noVNC browser interface and no noVNC JavaScript client
 
 ## Quick start
 
-Open this repository in GitHub Codespaces. The devcontainer automatically installs and starts:
-- XFCE + TigerVNC + noVNC/websockify (private port 6080)
-- Apache Guacamole + guacd + PostgreSQL + Nginx (private port 8080)
+1. Open this repository in GitHub Codespaces.
+2. Wait for the devcontainer bootstrap to finish.
+3. Keep ports **6080** and **8080** private if they are shown.
+4. Open the **RemoteX Custom UI** port **8080**.
+5. Sign in with your Guacamole account.
+6. Create or select a VNC/RDP connection in the gateway administration UI.
 
-Open the **PORTS** tab and keep both ports **Private**. Open port 8080 for the multi-protocol gateway. On first login, use `guacadmin / guacadmin` and change the password immediately.
+On first login, the initial Guacamole account may be `guacadmin / guacadmin`. Change the password immediately.
 
-For the direct VNC WebSocket endpoint, use the forwarded port 6080 hostname with `wss://` and `/websockify`. Its generated password is at `~/.config/hacfard-remotex/vnc-password`.
+## Architecture
 
-## Protocols
+- `remotex/index.html` — custom interface and client-side session handling
+- `remotex/preview.svg` — static visual preview used by this README
+- `server/` — Linux desktop lifecycle, setup and recovery scripts
+- `docker-compose.yml` — Guacamole, guacd, PostgreSQL and Nginx
+- Nginx serves the custom UI and proxies only the Guacamole API/WebSocket tunnel
 
-The Guacamole gateway supports VNC, RDP, SSH, Telnet and Kubernetes when corresponding remote hosts/services and credentials exist. SSH can provide SFTP file transfer. Capabilities such as clipboard, drive redirection and audio depend on protocol and host support.
+## Important notes
 
-## Repository
+- The Guacamole JavaScript client library is loaded from a CDN; the UI requires network access to that CDN.
+- Remote connections must already exist in Guacamole and have reachable target hosts.
+- For the local XFCE VNC target, use a VNC connection reachable from `guacd`; do not expose port 5901 publicly.
+- A Windows 10 VM is experimental. Codespaces may not expose nested virtualization; software emulation can be extremely slow.
+- Keep all forwarded ports private. Never commit passwords, tokens, ISO files or VM disks.
+- This project does not include a Windows license or Windows installation media.
 
-- `remotex/` — browser client
-- `server/` — automatic setup, VNC lifecycle, Nginx configuration
-- `docker-compose.yml` — Guacamole, guacd, PostgreSQL
-- `docs/` — architecture and deployment notes
+## License
 
-## Important
-
-This is not a one-click Windows VM provider. Windows access requires a reachable Windows machine with RDP enabled (or a VNC server). Codespaces is Linux-based and may stop when idle. Keep forwarded ports private. Never commit passwords or tokens.
+Use and modify this project for your own environment. Respect Microsoft Windows licensing and the licenses of bundled services.

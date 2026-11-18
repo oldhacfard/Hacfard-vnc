@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LOG_DIR="$HOME/.local/state/hacfard-remotex"
 CONFIG_DIR="$HOME/.config/hacfard-remotex"
 mkdir -p "$LOG_DIR" "$CONFIG_DIR" "$HOME/.vnc"
 chmod 700 "$CONFIG_DIR" "$HOME/.vnc"
 
-# Generate a private password once and keep it outside the repository.
+# Keep a private VNC password for the local XFCE desktop.
 if [[ -n "${VNC_PASSWORD:-}" ]]; then
   PASSWORD="$VNC_PASSWORD"
 elif [[ -s "$CONFIG_DIR/vnc-password" ]]; then
@@ -35,26 +36,9 @@ if ! pgrep -f '[X]tigervnc.*:1' >/dev/null 2>&1; then
   vncserver :1 -localhost yes -geometry "${VNC_GEOMETRY:-1600x900}" -depth 24
 fi
 
-if pgrep -f '[w]ebsockify.*6080' >/dev/null 2>&1; then
-  echo "[RemoteX] WebSocket bridge already running."
-else
-  nohup websockify --web=/usr/share/novnc 0.0.0.0:6080 127.0.0.1:5901 \
-    > "$LOG_DIR/websockify.log" 2>&1 &
-  echo $! > "$LOG_DIR/websockify.pid"
-fi
-
-sleep 1
-if ! kill -0 "$(cat "$LOG_DIR/websockify.pid" 2>/dev/null || echo 0)" 2>/dev/null && ! pgrep -f '[w]ebsockify.*6080' >/dev/null 2>&1; then
-  echo "[RemoteX] websockify did not start. Log: $LOG_DIR/websockify.log" >&2
-  exit 1
-fi
-
-echo
-echo "=============================================="
-echo " Hacfard RemoteX is running"
-echo " Desktop: XFCE Linux | Display: :1"
-echo " WebSocket port: 6080 (keep PRIVATE)"
-echo " VNC password: run: cat ~/.config/hacfard-remotex/vnc-password"
-echo " WebSocket path: /websockify"
-echo " Logs: $LOG_DIR"
-echo "=============================================="
+# The browser UI is now our own HTML/CSS/JS app served by the Nginx gateway.
+# The VNC server remains private and is reached by Guacamole/guacd internally.
+echo "[RemoteX] Custom RemoteX UI is served on private port 8080."
+echo "[RemoteX] Local VNC target for a Guacamole connection: 127.0.0.1:5901"
+echo "[RemoteX] VNC password file: $CONFIG_DIR/vnc-password"
+echo "[RemoteX] noVNC and websockify are not used by the client."
