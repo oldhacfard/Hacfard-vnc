@@ -1,11 +1,10 @@
-# Codespaces server setup
+# Automatic Codespaces server
 
-1. Rebuild the Codespace container after adding `.devcontainer/devcontainer.json`, or run `bash server/install.sh` in an existing Codespace.
-2. Start with `bash server/start.sh` and choose a strong VNC password when prompted.
-3. Open the PORTS tab and verify port 6080 is forwarded with **Private** visibility.
-4. Copy the HTTPS forwarded URL for port 6080 and add `/websockify` to form the WebSocket endpoint.
-5. Open the RemoteX client over HTTPS and enter the endpoint. Enter the VNC password when requested.
+The devcontainer lifecycle performs setup automatically:
+- `postCreateCommand` runs `server/bootstrap.sh` (install + first start).
+- `postStartCommand` runs `server/auto-start.sh` on later starts.
+- Port 6080 is forwarded privately.
 
-The VNC server listens only on localhost:5901. websockify exposes the WebSocket bridge on 6080. Keep the Codespaces port private.
+After the Codespace is ready, inspect the PORTS tab and keep 6080 private. The WebSocket endpoint is the forwarded HTTPS hostname converted to WSS, with `/websockify` appended. The automatically generated VNC password is stored at `~/.config/hacfard-remotex/vnc-password`.
 
-Codespaces is a Linux development environment. This recipe creates an XFCE Linux desktop, not a Windows 10 virtual machine, and does not provide guaranteed 24/7 hosting.
+If this repository was opened in an already-created Codespace before the devcontainer change, rebuild the container to apply lifecycle settings. For an existing container, run `bash server/auto-start.sh` once.

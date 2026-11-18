@@ -1,14 +1,15 @@
 {
-  "name": "Hacfard RemoteX Server",
+  "name": "Hacfard RemoteX",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "forwardPorts": [6080],
   "portsAttributes": {
     "6080": {
-      "label": "RemoteX VNC over WebSocket",
-      "onAutoForward": "notify",
+      "label": "Hacfard RemoteX Desktop",
+      "onAutoForward": "openBrowser",
       "visibility": "private"
     }
   },
-  "postCreateCommand": "bash server/install.sh",
+  "postCreateCommand": "bash server/bootstrap.sh",
+  "postStartCommand": "bash server/auto-start.sh",
   "remoteUser": "vscode"
 }

@@ -1,47 +1,37 @@
-# RemoteX server (Codespaces Linux desktop)
+# Hacfard RemoteX — automatic Codespaces desktop
 
-This folder provisions a **Linux XFCE desktop**, TigerVNC and a noVNC/websockify WebSocket bridge. It does not install or emulate Windows 10.
+Opening/rebuilding the Codespace automatically installs the desktop stack through `.devcontainer/devcontainer.json`. The first creation runs `server/bootstrap.sh`; every later start runs `server/auto-start.sh` to ensure the desktop and bridge are running.
 
-## Automatic setup in Codespaces
+## Included
+- XFCE Linux desktop
+- TigerVNC on display :1, bound to localhost only
+- noVNC static client assets and websockify bridge on port 6080
+- Automatic private VNC password generation
+- Background WebSocket service with logs and stop script
+- Codespaces port 6080 configured as **Private**
 
-The repository devcontainer runs `server/install.sh` after creation. If you are already in an existing Codespace, run:
+## Connect
+1. Open the Codespace and wait for the automatic setup to finish.
+2. Open the PORTS tab. Port 6080 should appear; confirm it is **Private**.
+3. Copy the HTTPS forwarded address and use its WSS form with `/websockify` appended, for example:
+   `wss://<codespace-name>-6080.app.github.dev/websockify`
+4. In RemoteX, paste that WebSocket address and enter the generated VNC password.
 
-```bash
-bash server/install.sh
-```
-
-## Start the desktop
-
-```bash
-bash server/start.sh
-```
-
-The script asks for a VNC password if `VNC_PASSWORD` is not set. Use a strong password; VNC's classic password authentication has legacy limitations, so keep the forwarded port private and use the Codespaces HTTPS/WSS endpoint. The password is written to `~/.vnc/passwd`, not to the repository.
-
-Codespaces forwards port **6080** as private. In the PORTS tab, confirm visibility is **Private**. The VNC TCP port 5901 is bound to localhost only. The websockify bridge listens on 6080.
-
-Copy the forwarded HTTPS address for port 6080, then append `/websockify` for the RemoteX VNC WebSocket URL. Example shape:
-
-```text
-wss://<codespace-name>-6080.app.github.dev/websockify
-```
-
-Use that URL in `remotex/index.html`. Do not make the port public or publish VNC credentials.
-
-## Stop
-
-In a second terminal:
+Read the generated password in the Codespace terminal:
 
 ```bash
-bash server/stop.sh
+cat ~/.config/hacfard-remotex/vnc-password
 ```
 
-Stop the websockify process with Ctrl+C in the terminal where `start.sh` is running.
+The password is generated once and stored with user-only permissions outside Git. Classic VNC authentication has an 8-character password limit; this is a legacy protocol limitation. Keep port 6080 private and never commit or share the password.
 
-## Important limitations
+## Useful commands
 
-- This is a Linux XFCE desktop hosted inside the Codespace, not a Windows 10 VM.
-- Codespaces may stop when idle and has resource, lifecycle, and networking limits; it is not guaranteed 24/7 hosting.
-- If the devcontainer was already created before these files were added, run the installer manually or rebuild the container to apply devcontainer settings.
-- Do not store VNC passwords, GitHub tokens, or proxy credentials in source files or commit them.
-- For Windows 10, use a separate licensed VM/host with a supported VNC server or an RDP gateway. This setup does not create that VM.
+```bash
+bash server/auto-start.sh   # ensure desktop is running
+bash server/stop.sh         # stop desktop and bridge
+tail -f ~/.local/state/hacfard-remotex/websockify.log
+```
+
+## Scope
+This creates an XFCE **Linux** desktop, not a Windows 10 VM. Codespaces can sleep or stop and is not 24/7 hosting. Windows requires a separate licensed VM/host and an appropriate remote-desktop adapter.
