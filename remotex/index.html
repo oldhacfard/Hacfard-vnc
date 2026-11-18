@@ -1,1 +1,50 @@
-<!doctype html><html lang="tr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hacfard RemoteX</title><body style="background:#090909;color:white;font:20px Arial;padding:30px"><h1>Hacfard RemoteX</h1><p>Proje çalışıyor.</p></body></html>
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090c"><title>Hacfard RemoteX</title>
+<style>
+:root{color-scheme:dark;--bg:#08090c;--panel:#11141b;--line:#252b36;--muted:#929baa;--white:#f5f7fb;--accent:#dce4f2;--green:#69d69a;--red:#ff7373}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -25%,#202938 0,transparent 55%),var(--bg);color:var(--white);font:15px system-ui,-apple-system,Segoe UI,sans-serif;min-height:100dvh}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#1a202b;color:var(--white);border-radius:12px;padding:11px 15px}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:#e9eef7;color:#10141b;border-color:#e9eef7;font-weight:700}.danger{color:#ff9b9b}
+header{height:66px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff12;position:sticky;top:0;background:#090b10dd;backdrop-filter:blur(16px);z-index:5}.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.2px}.logo{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#fff,#9ca9bb);color:#10141b;display:grid;place-items:center;font-weight:900}.sub{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:1.5px}
+main{max-width:1180px;margin:auto;padding:24px 18px 40px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:20px}.hero h1{font-size:clamp(25px,4vw,38px);margin:0 0 5px;letter-spacing:-1.2px}.hero p{color:var(--muted);margin:0}.status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}.dot{width:8px;height:8px;border-radius:50%;background:#697386}.dot.on{background:var(--green);box-shadow:0 0 12px #69d69a88}.layout{display:grid;grid-template-columns:310px 1fr;gap:16px}.panel{background:linear-gradient(180deg,#151a23,#10131a);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 16px 50px #0003}.panel h2{font-size:15px;margin:0 0 16px}.field{display:block;margin:13px 0}.field span{display:block;color:#aab3c2;font-size:12px;margin-bottom:7px}.field input{width:100%;padding:12px 13px;border:1px solid #303847;border-radius:11px;background:#090d13;color:white;outline:none}.field input:focus{border-color:#9baac0}.hint{color:var(--muted);font-size:11px;line-height:1.5;margin:13px 0}.actions{display:flex;gap:8px}.actions button{flex:1}.screenPanel{padding:12px;min-width:0}.screenTop{display:flex;justify-content:space-between;align-items:center;padding:3px 4px 12px}.screenTop strong{font-size:13px}.screenActions{display:flex;gap:7px}.screenActions button{padding:8px 10px;font-size:12px}.screen{height:min(68vh,680px);min-height:320px;border-radius:12px;background:#050608;border:1px solid #252b36;display:flex;align-items:center;justify-content:center;overflow:auto;position:relative}.screen #remote{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.screen #remote canvas{max-width:100%;max-height:100%;object-fit:contain;touch-action:pan-x pan-y}.empty{text-align:center;padding:25px;color:var(--muted);max-width:370px}.empty .monitor{font-size:38px;margin-bottom:10px}.empty strong{display:block;color:#e7ebf2;margin-bottom:7px}.screenbar{display:flex;justify-content:space-between;gap:10px;padding:12px 3px 2px;color:var(--muted);font-size:11px}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.tools button{font-size:12px;padding:9px 12px}.notice{margin-top:16px;border:1px solid #303846;background:#0c1017;border-radius:13px;padding:12px 14px;color:#aab3c2;font-size:12px;line-height:1.55}.notice b{color:#e7ebf2}.hidden{display:none!important}
+@media(max-width:800px){main{padding:18px 12px 28px}.layout{grid-template-columns:1fr}.hero{align-items:start;flex-direction:column}.screen{height:58vh;min-height:260px}.panel{padding:15px}.screenPanel{padding:10px}.sub{display:none}}
+</style></head>
+<body>
+<header><div class="brand"><div class="logo">H</div><div>HACFARD <span class="sub">REMOTEX</span></div></div><div class="status"><i class="dot" id="dot"></i><span id="status">Bağlantı bekleniyor</span></div></header>
+<main><section class="hero"><div><h1>Uzak masaüstü.</h1><p>Her ekrandan, tek bir sade arayüzle bağlan.</p></div><div class="sub">BROWSER REMOTE CLIENT</div></section>
+<div class="layout">
+<aside class="panel"><h2>Bağlantı ayarları</h2>
+<label class="field"><span>VNC WebSocket adresi</span><input id="url" type="url" placeholder="wss://sunucu.example.com/websockify" autocomplete="url"></label>
+<label class="field"><span>VNC parolası</span><input id="password" type="password" placeholder="Bağlanırken istenir" autocomplete="off"></label>
+<div class="actions"><button class="primary" id="connect">Bağlan</button><button id="disconnect" disabled>Kes</button></div>
+<p class="hint">Örnek: websockify üzerinden sunulan VNC WebSocket adresi. HTTPS sayfalarında güvenli bağlantı için WSS kullan.</p>
+<div class="notice"><b>Güvenlik</b><br>Parola tarayıcıda saklanmaz. Erişim bilgilerini URL'ye ekleme ve özel Codespaces portlarını herkese açma.</div>
+</aside>
+<section class="panel screenPanel"><div class="screenTop"><strong>Uzak ekran</strong><div class="screenActions"><button id="fit">Ekrana sığdır</button><button id="full">Tam ekran</button></div></div>
+<div class="screen" id="screen"><div id="remote"><div class="empty" id="empty"><div class="monitor">▣</div><strong>Henüz bağlı değil</strong>VNC WebSocket adresini girip Bağlan'a dokun.</div></div></div>
+<div class="screenbar"><span id="resolution">Ekran hazır</span><span>Dokunmatik • Klavye</span></div>
+<div class="tools"><button id="ctrl">Ctrl</button><button id="alt">Alt</button><button id="esc">Esc</button><button id="tab">Tab</button><button id="enter">Enter</button><button id="keyboard">⌨ Klavyeyi aç</button></div>
+</section></div>
+<div class="notice"><b>Bağlantı gereksinimi:</b> Bu istemci, çalışan bir VNC sunucusu ve WebSocket köprüsü (ör. websockify) gerektirir. Yalnızca Codespaces portunu yönlendirmek bir Windows masaüstü oluşturmaz. RDP, SSH veya FTP bağlantısı bu sürümde desteklenmez.</div>
+</main>
+<script type="module">
+import RFB from 'https://cdn.jsdelivr.net/npm/@novnc/novnc@1.5.0/core/rfb.js';
+const $=id=>document.getElementById(id);let rfb=null,modifier={ctrl:false,alt:false};
+function state(text,on=false){$('status').textContent=text;$('dot').classList.toggle('on',on)}
+function connected(){state('Bağlandı',true);$('connect').disabled=true;$('disconnect').disabled=false;$('empty').classList.add('hidden')}
+function disconnected(reason='Bağlantı kesildi'){state(reason,false);$('connect').disabled=false;$('disconnect').disabled=true;$('resolution').textContent='Ekran hazır';rfb=null}
+function sendKey(key){if(!rfb)return;try{rfb.sendKey(key)}catch(e){}}
+$('connect').onclick=()=>{const url=$('url').value.trim();if(!/^wss?:\/\//i.test(url)){state('Geçerli ws:// veya wss:// adresi gir');return}
+try{state('Bağlanıyor…');rfb=new RFB($('remote'),url);rfb.scaleViewport=true;rfb.resizeSession=true;rfb.showDotCursor=true;rfb.focusOnClick=true;
+rfb.addEventListener('connect',connected);rfb.addEventListener('disconnect',e=>disconnected(e.detail.clean?'Bağlantı kapandı':'Bağlantı hatası'));rfb.addEventListener('credentialsrequired',()=>{const password=$('password').value;if(password)rfb.sendCredentials({password});else{const p=prompt('VNC parolası');if(p!==null)rfb.sendCredentials({password:p});else disconnected('Parola gerekli')}});
+rfb.addEventListener('desktopname',e=>{$('resolution').textContent=e.detail.name||'Uzak masaüstü'});rfb.addEventListener('securityfailure',e=>state('Güvenlik hatası: '+(e.detail.reason||'erişim reddedildi')));rfb.viewOnly=false;
+}catch(e){disconnected('Bağlantı başlatılamadı');console.error(e)}};
+$('disconnect').onclick=()=>{if(rfb)rfb.disconnect();disconnected()};
+$('fit').onclick=()=>{if(rfb)rfb.scaleViewport=true};
+$('full').onclick=()=>{const el=$('screen');if(!document.fullscreenElement)el.requestFullscreen?.();else document.exitFullscreen?.()};
+$('ctrl').onclick=()=>sendKey(0xffe3);$('alt').onclick=()=>sendKey(0xffe9);$('esc').onclick=()=>sendKey(0xff1b);$('tab').onclick=()=>sendKey(0xff09);$('enter').onclick=()=>sendKey(0xff0d);
+$('keyboard').onclick=()=>{if(rfb){rfb.focus();state('Klavye hazır',true)}};
+window.addEventListener('beforeunload',()=>{if(rfb)rfb.disconnect()});
+</script></body></html>
