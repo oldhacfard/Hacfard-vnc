@@ -17,8 +17,8 @@ for n in $(seq 1 45); do
 done
 if [[ "$ready" != 1 ]]; then dc logs --tail=100 postgres; exit 2; fi
 echo "[RemoteX] Checking Guacamole schema..."
-exists="$(dc exec -T postgres sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc "SELECT to_regclass('public.guacamole_user') IS NOT NULL"' | tr -d '[:space:]')"
-if [[ "$exists" != "t" ]]; then
+exists="$(dc exec -T postgres sh -c 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\\dt"' | grep -c guacamole_user || true)"
+if [[ "$exists" -eq 0 ]]; then
   echo "[RemoteX] Missing Guacamole tables. Applying schema without deleting existing data..."
   if [[ ! -s "$SCHEMA" ]]; then
     docker run --rm guacamole/guacamole:1.6.0 /opt/guacamole/bin/initdb.sh --postgresql > "$SCHEMA"
