@@ -4,13 +4,6 @@ services:
     image: guacamole/guacd:1.6.0
     restart: unless-stopped
     networks: [remotex-internal]
-    volumes:
-      - guac-drive:/ drive
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 4822 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
 
   postgres:
     image: postgres:16-alpine
@@ -36,7 +29,7 @@ services:
       postgres:
         condition: service_healthy
       guacd:
-        condition: service_healthy
+        condition: service_started
     environment:
       GUACD_HOSTNAME: guacd
       POSTGRESQL_ENABLED: "true"
@@ -46,7 +39,6 @@ services:
       POSTGRESQL_PASSWORD: ${GUAC_DB_PASSWORD:?Run server/bootstrap.sh first}
       WEBAPP_CONTEXT: ROOT
       REMOTE_IP_VALVE_ENABLED: "true"
-      TOTP_ENABLED: "false"
     ports:
       - "127.0.0.1:8081:8080"
     networks: [remotex-internal]
@@ -67,4 +59,3 @@ networks:
 
 volumes:
   guac-db:
-  guac-drive:
