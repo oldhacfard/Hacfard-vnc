@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-echo "[RemoteX] Checking and installing desktop dependencies..."
+echo "[RemoteX] Installing desktop and VNC dependencies..."
 sudo apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   xfce4 xfce4-terminal dbus-x11 \
@@ -9,4 +9,4 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   ca-certificates curl procps python3
 mkdir -p "$HOME/.vnc" "$HOME/.config/hacfard-remotex"
 chmod 700 "$HOME/.vnc" "$HOME/.config/hacfard-remotex"
-echo "[RemoteX] Dependencies are ready."
+echo "[RemoteX] Linux desktop packages ready."

@@ -1,37 +1,46 @@
-# Hacfard RemoteX — automatic Codespaces desktop
+# Hacfard RemoteX Ultimate — Codespaces stack
 
-Opening/rebuilding the Codespace automatically installs the desktop stack through `.devcontainer/devcontainer.json`. The first creation runs `server/bootstrap.sh`; every later start runs `server/auto-start.sh` to ensure the desktop and bridge are running.
+The Codespaces devcontainer automatically installs dependencies and starts two remote-access paths:
 
-## Included
-- XFCE Linux desktop
-- TigerVNC on display :1, bound to localhost only
-- noVNC static client assets and websockify bridge on port 6080
-- Automatic private VNC password generation
-- Background WebSocket service with logs and stop script
-- Codespaces port 6080 configured as **Private**
+1. **Direct VNC/noVNC:** XFCE + TigerVNC + websockify on private port 6080.
+2. **Multi-protocol gateway:** Apache Guacamole + guacd + PostgreSQL + Nginx on private port 8080.
 
-## Connect
-1. Open the Codespace and wait for the automatic setup to finish.
-2. Open the PORTS tab. Port 6080 should appear; confirm it is **Private**.
-3. Copy the HTTPS forwarded address and use its WSS form with `/websockify` appended, for example:
-   `wss://<codespace-name>-6080.app.github.dev/websockify`
-4. In RemoteX, paste that WebSocket address and enter the generated VNC password.
+## Supported gateway protocols
 
-Read the generated password in the Codespace terminal:
+The official Guacamole server image includes VNC, RDP, SSH, Telnet and Kubernetes protocol support. Actual access still requires a reachable host and valid credentials. RDP requires an RDP-enabled Windows host; SSH requires an SSH server; VNC requires a VNC server. Kubernetes access requires cluster credentials and network reachability.
 
-```bash
-cat ~/.config/hacfard-remotex/vnc-password
-```
+Guacamole supports browser-based connection management, clipboard features and protocol-dependent file transfer/drive redirection. Features differ by protocol and remote server. This stack does not create Windows VMs or magically enable RDP on a host.
 
-The password is generated once and stored with user-only permissions outside Git. Classic VNC authentication has an 8-character password limit; this is a legacy protocol limitation. Keep port 6080 private and never commit or share the password.
+## Automatic setup
+
+New Codespaces run `server/bootstrap.sh` after creation. Later starts run `server/auto-start.sh`. Docker-in-Docker is enabled in the devcontainer. For a pre-existing Codespace, use **Rebuild Container** once to apply the updated devcontainer configuration.
+
+## Open the gateway
+
+Open the PORTS tab and use the private forwarded port **8080**. The initial Guacamole database account is:
+
+- Username: `guacadmin`
+- Password: `guacadmin`
+
+**Immediately change this password after first login.** Do not make port 8080 public. The database password is randomly generated in `server/.env`, ignored by Git, and persisted in the Codespace.
+
+The direct VNC WebSocket endpoint remains on private port 6080 at `/websockify`. Its VNC password is stored at `~/.config/hacfard-remotex/vnc-password`.
 
 ## Useful commands
 
 ```bash
-bash server/auto-start.sh   # ensure desktop is running
-bash server/stop.sh         # stop desktop and bridge
-tail -f ~/.local/state/hacfard-remotex/websockify.log
+bash server/auto-start.sh
+bash server/stop.sh
+docker compose --env-file server/.env ps
+docker compose --env-file server/.env logs -f guacamole guacd
 ```
 
-## Scope
-This creates an XFCE **Linux** desktop, not a Windows 10 VM. Codespaces can sleep or stop and is not 24/7 hosting. Windows requires a separate licensed VM/host and an appropriate remote-desktop adapter.
+## Security and deployment notes
+
+- Keep forwarded ports 6080 and 8080 **Private**.
+- guacd is not an authentication service; it is isolated on the internal Docker network.
+- PostgreSQL and guacd are not published to the host.
+- Use HTTPS/WSS, unique host credentials, MFA-capable auth extensions, and network restrictions for production.
+- Codespaces is a development environment and may stop when idle. It is not a guaranteed always-on production host.
+- The initial Guacamole admin password is a bootstrap credential; rotate it immediately.
+- Do not commit `server/.env`, generated SQL, VNC passwords, host passwords, private keys, or tokens.

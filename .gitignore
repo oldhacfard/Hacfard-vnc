@@ -1,0 +1,7 @@
+# Local secrets and generated runtime state
+.env
+server/.env
+server/guac-init/*.sql
+server/.runtime/
+*.log
+.DS_Store

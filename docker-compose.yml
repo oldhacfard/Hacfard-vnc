@@ -1,0 +1,70 @@
+name: hacfard-remotex
+services:
+  guacd:
+    image: guacamole/guacd:1.6.0
+    restart: unless-stopped
+    networks: [remotex-internal]
+    volumes:
+      - guac-drive:/ drive
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 4822 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: ${GUAC_DB_PASSWORD:?Run server/bootstrap.sh first}
+    volumes:
+      - guac-db:/var/lib/postgresql/data
+      - ./server/guac-init:/docker-entrypoint-initdb.d:ro
+    networks: [remotex-internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  guacamole:
+    image: guacamole/guacamole:1.6.0
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_healthy
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_ENABLED: "true"
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USERNAME: guacamole_user
+      POSTGRESQL_PASSWORD: ${GUAC_DB_PASSWORD:?Run server/bootstrap.sh first}
+      WEBAPP_CONTEXT: ROOT
+      REMOTE_IP_VALVE_ENABLED: "true"
+      TOTP_ENABLED: "false"
+    ports:
+      - "127.0.0.1:8081:8080"
+    networks: [remotex-internal]
+
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [guacamole]
+    ports:
+      - "0.0.0.0:8080:80"
+    volumes:
+      - ./server/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: [remotex-internal]
+
+networks:
+  remotex-internal:
+    driver: bridge
+
+volumes:
+  guac-db:
+  guac-drive:
