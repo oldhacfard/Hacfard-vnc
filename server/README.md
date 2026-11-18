@@ -1,25 +1,15 @@
 # Hacfard RemoteX — Codespaces stack
 
-The Codespaces devcontainer installs XFCE + TigerVNC + noVNC/websockify on private port 6080 and Apache Guacamole + guacd + PostgreSQL + Nginx on private port 8080.
+## Recovery
 
-## Open the gateway
+Run `bash server/status.sh` for application/API/database diagnostics. Run `bash server/recover.sh` for a non-destructive repair. Recovery checks PostgreSQL readiness and the Guacamole schema, applies the official generated schema only when the Guacamole user table is absent, then restarts the application and gateway.
 
-Open private forwarded port 8080. Initial account: `guacadmin / guacadmin`. Change the password immediately and keep both ports private.
+**Recovery does not remove Docker volumes, drop databases, reset users, or erase stored connections.**
 
-## Recovery and diagnostics
+## Gateway
 
-```bash
-bash server/status.sh
-bash server/recover.sh
-docker compose --env-file server/.env logs --tail=100 guacamole
-```
+Open private forwarded port 8080. Initial account is `guacadmin / guacadmin`; change it immediately after successful login. Keep ports private.
 
-`recover.sh` is non-destructive: it recreates missing services, waits for PostgreSQL, restarts Guacamole and Nginx, tests the local gateway, and prints relevant logs. It does not delete the database volume or reset passwords.
+## Limitations
 
-## Protocol support
-
-Guacamole/guacd supports VNC, RDP, SSH, Telnet and Kubernetes when the target host, network path and credentials exist. RDP requires an existing Windows host with RDP enabled. This repository does not yet provision a Windows 10 VM.
-
-## Notes
-
-New Codespaces run `server/bootstrap.sh`; later starts run `server/auto-start.sh`. Rebuild existing Codespaces after devcontainer changes. Codespaces may stop when idle. Never commit secrets, VNC passwords, private keys or tokens.
+Guacamole can connect to reachable VNC, RDP, SSH, Telnet and Kubernetes targets when configured. This repository does not yet provision a Windows 10 VM. Codespaces may stop when idle.
