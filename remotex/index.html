@@ -109,7 +109,7 @@ window.addEventListener('beforeunload',()=>{manualClose=true;if(rfb)rfb.disconne
 const gatewayCard=document.getElementById('gatewayCard');
 const gatewayOpen=document.getElementById('gatewayOpen');
 if(location.hostname.endsWith('.app.github.dev')){
-  const gatewayHost=location.hostname.replace(/-\\d+\\.app\\.github\\.dev$/,'-8080.app.github.dev');
+  const gatewayHost=location.hostname.replace(/-[0-9]+\.app\.github\.dev$/,'-8080.app.github.dev');
   if(gatewayHost!==location.hostname){gatewayOpen.href=location.protocol+'//'+gatewayHost+'/';gatewayCard.classList.remove('hidden')}
 }
 setInterval(()=>{if(connectedAt){const s=Math.floor((Date.now()-connectedAt)/1000);$('uptime').textContent=Math.floor(s/60)+'m '+(s%60)+'s'}},1000);
