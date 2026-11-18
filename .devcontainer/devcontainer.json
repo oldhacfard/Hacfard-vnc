@@ -1,6 +1,6 @@
 {
-  "name": "Hacfard RemoteX Ultimate",
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "name": "Hacfard RemoteX",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
@@ -10,17 +10,19 @@
   "forwardPorts": [6080, 8080],
   "portsAttributes": {
     "6080": {
-      "label": "RemoteX VNC WebSocket",
+      "label": "RemoteX VNC (noVNC)",
       "onAutoForward": "notify",
       "visibility": "private"
     },
     "8080": {
-      "label": "RemoteX Multi-Protocol Gateway",
+      "label": "RemoteX Gateway (Guacamole)",
       "onAutoForward": "openBrowser",
       "visibility": "private"
     }
   },
   "postCreateCommand": "bash server/bootstrap.sh",
   "postStartCommand": "bash server/auto-start.sh",
-  "remoteUser": "vscode"
+  "waitFor": "postCreateCommand",
+  "remoteUser": "vscode",
+  "shutdownAction": "stopContainer"
 }
