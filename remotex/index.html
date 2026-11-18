@@ -17,6 +17,10 @@ main{max-width:1420px;margin:auto;padding:22px 16px 42px}.hero{display:flex;just
 <header><div class="brand"><div class="logo">H</div><div>HACFARD <span class="sub">REMOTEX</span></div></div><div class="status"><i class="dot" id="dot"></i><span id="status">Bağlantı bekleniyor</span><span class="pill" id="protocolPill">VNC</span></div></header>
 <main>
 <section class="hero"><div><h1>Uzak masaüstü, özgürce.</h1><p>Telefon, tablet ve bilgisayar için gelişmiş uzaktan bağlantı istemcisi.</p></div><span class="sub">OLDHACFARD • REMOTE ACCESS</span></section>
+<section id="gatewayCard" class="notice hidden" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+  <div><b>RemoteX Multi-Protocol Gateway</b><br><span>VNC • RDP • SSH • Telnet • Kubernetes • SSH dosya aktarımı</span><br><span class="small">Codespaces port 8080 üzerinden ayrı güvenli ağ geçidi.</span></div>
+  <a id="gatewayOpen" href="#" target="_blank" rel="noopener" style="display:inline-block;padding:10px 14px;border-radius:10px;background:#e9eef7;color:#10141b;text-decoration:none;font-weight:750">Gateway'i aç ↗</a>
+</section>
 <div class="layout">
 <aside class="panel">
 <h2>Bağlantı merkezi</h2>
@@ -102,6 +106,12 @@ $('showJoystick').onclick=()=>$('joystickWrap').classList.toggle('hidden');
 let joyActive=false;$('joystick').addEventListener('pointerdown',e=>{joyActive=true;$('joystick').setPointerCapture(e.pointerId);moveJoy(e)});$('joystick').addEventListener('pointermove',e=>{if(joyActive)moveJoy(e)});$('joystick').addEventListener('pointerup',()=>{joyActive=false;$('stick').style.left='35px';$('stick').style.top='35px'});function moveJoy(e){const r=$('joystick').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,d=Math.min(34,Math.hypot(dx,dy)),a=Math.atan2(dy,dx),x=Math.cos(a)*d,y=Math.sin(a)*d;$('stick').style.left=(35+x)+'px';$('stick').style.top=(35+y)+'px';setPointer(pointer.x+x/600,pointer.y+y/600,0)}
 window.addEventListener('keydown',e=>{if(!rfb||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;if(e.key==='F11'||e.key==='F12'||e.key==='Tab')e.preventDefault();if(e.key==='Control')return;if(e.key==='Alt')return;if(e.key.length===1||keysyms[e.key])sendKey(e.key)});
 window.addEventListener('beforeunload',()=>{manualClose=true;if(rfb)rfb.disconnect()});
+const gatewayCard=document.getElementById('gatewayCard');
+const gatewayOpen=document.getElementById('gatewayOpen');
+if(location.hostname.endsWith('.app.github.dev')){
+  const gatewayHost=location.hostname.replace(/-\\d+\\.app\\.github\\.dev$/,'-8080.app.github.dev');
+  if(gatewayHost!==location.hostname){gatewayOpen.href=location.protocol+'//'+gatewayHost+'/';gatewayCard.classList.remove('hidden')}
+}
 setInterval(()=>{if(connectedAt){const s=Math.floor((Date.now()-connectedAt)/1000);$('uptime').textContent=Math.floor(s/60)+'m '+(s%60)+'s'}},1000);
 </script>
 </body></html>
