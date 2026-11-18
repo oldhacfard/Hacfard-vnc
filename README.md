@@ -29,7 +29,7 @@ The image above is a static UI preview. Open the live app from the private Codes
 
 1. Open this repository in GitHub Codespaces.
 2. Wait for the devcontainer bootstrap to finish.
-3. Keep ports **6080** and **8080** private if they are shown.
+3. Keep port **8080** private. Port 6080 is no longer used.
 4. Open the **RemoteX Custom UI** port **8080**.
 5. Sign in with your Guacamole account.
 6. Create or select a VNC/RDP connection in the gateway administration UI.

@@ -12,7 +12,7 @@ header{height:66px;display:flex;align-items:center;justify-content:space-between
 @media(max-width:850px){header{padding:0 13px}main{padding:18px 10px 30px}.layout{grid-template-columns:1fr}.hero{align-items:start;flex-direction:column}.screen{height:55vh;min-height:260px}.panel{padding:13px}.headright .tiny{display:none}}
 @media(orientation:landscape) and (max-height:600px){header{height:48px}.hero{display:none}main{padding:8px}.layout{grid-template-columns:260px minmax(0,1fr)}.screen{height:calc(100dvh - 115px);min-height:180px}}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/guacamole-common-js@1.5.5/dist/guacamole.min.js"></script>
+<script src="/guacamole-common-js/all.min.js"></script>
 </head>
 <body>
 <header><div class="brand"><div class="mark">H</div><div>HACFARD<small>REMOTEX WORKSPACE</small></div></div><div class="headright"><span class="tiny">CUSTOM CLIENT • NO NOVNC UI</span><div class="state"><i class="led" id="led"></i><span id="status">Oturum bekleniyor</span></div></div></header>
@@ -78,8 +78,8 @@ function connect(c){
  client=new Guacamole.Client(tunnel);const element=client.getDisplay().getElement();element.style.maxWidth='100%';element.style.maxHeight='100%';$('display').appendChild(element);
  client.onerror=err=>{log('Bağlantı hatası: '+(err.message||err));status('Bağlantı hatası','bad')};
  client.onstatechange=s=>{const labels={0:'Bağlantı kuruluyor',1:'Bekliyor',2:'Bağlanıyor',3:'Bağlandı',4:'Bağlantı kesiliyor',5:'Bağlantı kesildi'};status(labels[s]||'Durum '+s,s===3?'on':s===5?'bad':'');if(s===3){started=Date.now();$('disconnect').disabled=false;$('reconnect').disabled=false;log(c.name+' oturumu açıldı.')}if(s===5){$('disconnect').disabled=true;clearInterval(tick)}};
- const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png',GUAC_PIXEL:'苦',GUAC_TOKEN:auth.authToken});
- params.delete('GUAC_PIXEL');
+ const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png',GUAC_TOKEN:auth.authToken});
+ 
  try{client.connect(params.toString())}catch(e){log(e.message);status('Bağlantı başlatılamadı','bad')}
  tick=setInterval(()=>{if(started)$('elapsed').textContent=Math.floor((Date.now()-started)/60000)+'m '+Math.floor(((Date.now()-started)/1000)%60)+'s'},1000);
 }

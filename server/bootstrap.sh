@@ -60,6 +60,6 @@ for attempt in $(seq 1 45); do
   sleep 2
 done
 
-echo "[RemoteX] Starting the Linux desktop and noVNC bridge..."
+echo "[RemoteX] Starting the Linux desktop; custom UI is served by the gateway..."
 bash server/start.sh
 echo "[RemoteX] Setup complete. Open the forwarded private port 8080."

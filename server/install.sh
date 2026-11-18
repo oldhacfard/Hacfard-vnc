@@ -20,12 +20,12 @@ case "${ID:-unknown}" in
     as_root apt-get update
     as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       xfce4 xfce4-terminal dbus-x11 tigervnc-standalone-server tigervnc-tools \
-      novnc websockify ca-certificates curl procps python3
+      ca-certificates curl procps python3
     ;;
   alpine)
     # Alpine support is best-effort. The recommended Codespaces image remains Ubuntu.
     as_root apk add --no-cache bash xfce4 xfce4-terminal dbus dbus-x11 \
-      tigervnc novnc py3-websockify ca-certificates curl procps python3
+      tigervnc ca-certificates curl procps python3
     ;;
   *)
     echo "[RemoteX] Unsupported distribution: ${ID:-unknown}. Use the repository's Ubuntu devcontainer and rebuild it." >&2
@@ -41,7 +41,6 @@ if ! command -v vncserver >/dev/null 2>&1 && command -v tigervncserver >/dev/nul
   as_root ln -sf "$(command -v tigervncserver)" /usr/local/bin/vncserver
 fi
 command -v vncserver >/dev/null 2>&1 || { echo "[RemoteX] TigerVNC server executable was not installed." >&2; exit 1; }
-command -v websockify >/dev/null 2>&1 || { echo "[RemoteX] websockify executable was not installed." >&2; exit 1; }
 mkdir -p "$HOME/.vnc" "$HOME/.config/hacfard-remotex" "$HOME/.local/state/hacfard-remotex"
 chmod 700 "$HOME/.vnc" "$HOME/.config/hacfard-remotex"
-echo "[RemoteX] Desktop/VNC dependencies are ready."
+echo "[RemoteX] Desktop/VNC dependencies are ready (noVNC/websockify are not installed)."

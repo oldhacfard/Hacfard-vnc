@@ -8,18 +8,12 @@
     }
   },
   "forwardPorts": [
-    6080,
     8080
   ],
   "portsAttributes": {
-    "6080": {
-      "label": "Hacfard RemoteX — Custom UI",
-      "onAutoForward": "openBrowser",
-      "visibility": "private"
-    },
     "8080": {
-      "label": "RemoteX Gateway API (private)",
-      "onAutoForward": "notify",
+      "label": "Hacfard RemoteX Custom UI",
+      "onAutoForward": "openBrowser",
       "visibility": "private"
     }
   },
