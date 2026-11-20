@@ -1,18 +1,26 @@
-# Windows 10 VM test (experimental)
+# Windows 10 VM (experimental)
 
-This is an experimental QEMU guest inside Codespaces, not a guaranteed cloud Windows host. Codespaces may deny nested virtualization, CPU/RAM may be constrained, and TCG is extremely slow. The QEMU documentation confirms TCG is software CPU emulation and KVM is a separate Linux accelerator.
+RemoteX runs Windows 10 as a QEMU guest inside the Codespace. This is nested virtualization, not a dedicated Windows cloud VM. GitHub Codespaces may not expose /dev/kvm; without KVM, QEMU uses TCG software emulation and Windows can be extremely slow.
 
-## Setup
+## Install and boot
 
-1. Run `bash server/windows10-install.sh`.
-2. Supply your own licensed Windows 10 ISO at `~/Windows10.iso`.
-3. Run `bash server/windows10-create-disk.sh`.
-4. Run `bash server/windows10-start.sh`.
+1. Upload your own licensed Windows 10 ISO to the Codespace home directory as ~/Windows10.iso.
+2. Run bash server/windows10-start.sh. QEMU is installed by the main bootstrap; alternatively run bash server/windows10-install.sh.
+3. The first boot creates a 64 GB QCOW2 disk and boots the ISO for installation.
+4. Open the RemoteX UI and sign in. The console password is shown by cat ~/.config/hacfard-remotex/windows10-vnc-password.
+5. Create a Windows 10 kurulum ekranı · VNC connection. Complete Windows Setup.
+6. Later starts boot from the disk. Enable Remote Desktop in Windows, configure a strong account password and allow RDP through Windows Firewall.
+7. Create a Windows 10 masaüstü · RDP connection using the Windows account credentials.
 
-The VM disk is stored outside the repository at `~/.local/share/hacfard-remotex/windows10/windows10.qcow2`. The default virtual disk is 64 GB, memory 4 GB and 2 vCPUs. Change `VM_MEMORY`, `VM_CPUS`, or `VM_DISK_SIZE` before creating/starting if needed.
+## Resources and storage
 
-The installation console is QEMU VNC on port 5902, intended for a Guacamole VNC connection to `host.docker.internal:5902`. Do not forward port 5902 publicly. This experimental console currently has no VNC password; only use it inside a trusted private Codespaces environment and do not expose it. After Windows installation, enable Remote Desktop in Windows and use Guacamole RDP to `host.docker.internal:3389` (credentials and Windows firewall must be configured).
+Defaults: 2 vCPUs, 4 GB RAM, 64 GB dynamically allocated QCOW2 disk. Set VM_CPUS, VM_MEMORY, and VM_DISK_SIZE before first start. The disk is stored outside Git in ~/.local/share/hacfard-remotex/windows10/windows10.qcow2.
 
-Stop with `bash server/windows10-stop.sh`. The stop script requests a graceful guest shutdown; it does not delete the disk.
+## Security and limitations
 
-No Windows ISO, license, Windows VM boot, or RDP session is included or verified by this commit. If KVM is unavailable, QEMU uses TCG which may be too slow for practical Windows use.
+- Keep forwarded port 8080 private. Do not forward 5901, 5902, or 3389 publicly.
+- QEMU VNC uses a generated password stored with mode 0600.
+- The VM disk and ISO are not committed to the repository.
+- Codespaces may not provide nested KVM; TCG can be too slow for practical Windows use.
+- No Windows installation, license, KVM availability, or RDP login is guaranteed by this project.
+- Windows 10 standard support ended on 14 October 2025; use a supported, licensed OS where possible.
