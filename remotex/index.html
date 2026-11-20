@@ -28,6 +28,13 @@ header{height:66px;display:flex;align-items:center;justify-content:space-between
 <h2>Uzak bilgisayarlar <span class="badge" id="count">0</span></h2>
 <div class="connection-list" id="connections"><div class="hint">Önce gateway'e giriş yap. Kayıtlı bağlantıların burada listelenecek.</div></div>
 <div class="rule"></div>
+<h2>Hızlı VM bağlantısı</h2>
+<label class="field"><span>İşletim sistemi / bağlantı</span><select id="quickProfile"><option value="linux">Linux XFCE · VNC</option><option value="winvnc">Windows 10 kurulum ekranı · VNC</option><option value="winrdp">Windows 10 masaüstü · RDP</option></select></label>
+<label class="field"><span>Bağlantı parolası</span><input id="quickPassword" type="password" autocomplete="off" placeholder="Parolayı gir"></label>
+<label class="field hidden" id="rdpUserWrap"><span>Windows kullanıcı adı</span><input id="rdpUser" value="Administrator" autocomplete="username"></label>
+<button class="primary" id="addQuick" style="width:100%">Bağlantıyı oluştur</button>
+<p class="hint">Linux parolası: cat ~/.config/hacfard-remotex/vnc-password<br>Windows VNC parolası: cat ~/.config/hacfard-remotex/windows10-vnc-password</p>
+<div class="rule"></div>
 <label class="field"><span>Görüntü kalitesi <b id="qualityValue">80</b>%</span><input id="quality" type="range" min="10" max="100" value="80"></label>
 <label class="field"><span>Bağlantı modu</span><select id="fit"><option value="fit">Ekrana sığdır</option><option value="original">Gerçek boyut</option></select></label>
 <div class="row"><button id="reconnect" disabled>Yeniden bağlan</button><button id="disconnect" disabled>Bağlantıyı kes</button></div>
@@ -100,6 +107,19 @@ $('addQuick').onclick=async()=>{
  if(cfg.protocol==='rdp'){parameters.username=$('rdpUser').value||'Administrator';parameters.security:'any';parameters['ignore-cert']='true'}
  try{
   const response=await api('/api/session/data/'+encodeURIComponent(auth.dataSource)+'/connections?token='+encodeURIComponent(auth.authToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parentIdentifier:'ROOT',name:cfg.name,protocol:cfg.protocol,parameters,attributes:{'max-connections':'5','max-connections-per-user':'2',weight:'1'}})});
+  $('quickPassword').value='';await loadConnections();toast(cfg.name+' bağlantısı oluşturuldu');log('Connection profile created: '+cfg.name);
+ }catch(err){toast('Bağlantı oluşturulamadı: '+err.message);log(err.message)}
+};
+$('quickProfile').onchange=()=>{$('rdpUserWrap').classList.toggle('hidden',$('quickProfile').value!=='winrdp')};
+$('addQuick').onclick=async()=>{
+ if(!auth){toast('Önce gateway girişini yap');return}
+ const profile=$('quickProfile').value, password=$('quickPassword').value;
+ if(!password){toast('Bağlantı parolasını gir');return}
+ const cfg=profile==='linux'?{name:'Linux XFCE',protocol:'vnc',port:'5901'}:profile==='winvnc'?{name:'Windows 10 Console',protocol:'vnc',port:'5902'}:{name:'Windows 10 Desktop',protocol:'rdp',port:'3389'};
+ const parameters={hostname:'host.docker.internal',port:cfg.port,password};
+ if(cfg.protocol==='rdp'){parameters.username=$('rdpUser').value||'Administrator';parameters.security='any';parameters['ignore-cert']='true'}
+ try{
+  await api('/api/session/data/'+encodeURIComponent(auth.dataSource)+'/connections?token='+encodeURIComponent(auth.authToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parentIdentifier:'ROOT',name:cfg.name,protocol:cfg.protocol,parameters,attributes:{'max-connections':'5','max-connections-per-user':'2',weight:'1'}})});
   $('quickPassword').value='';await loadConnections();toast(cfg.name+' bağlantısı oluşturuldu');log('Connection profile created: '+cfg.name);
  }catch(err){toast('Bağlantı oluşturulamadı: '+err.message);log(err.message)}
 };
