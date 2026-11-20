@@ -9,5 +9,6 @@ if [[ -s "$LOG_DIR/websockify.pid" ]]; then
 fi
 pkill -f '[w]ebsockify.*6080' 2>/dev/null || true
 vncserver -kill :1 2>/dev/null || true
+if [[ -f server/windows10-stop.sh ]]; then bash server/windows10-stop.sh || true; fi
 docker compose --env-file server/.env stop gateway guacamole guacd postgres 2>/dev/null || true
 echo "[RemoteX] Services stopped. Data volumes were preserved."
