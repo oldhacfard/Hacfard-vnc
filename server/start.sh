@@ -33,12 +33,12 @@ XSTART
 chmod 700 "$HOME/.vnc/xstartup"
 
 if ! pgrep -f '[X]tigervnc.*:1' >/dev/null 2>&1; then
-  vncserver :1 -localhost yes -geometry "${VNC_GEOMETRY:-1600x900}" -depth 24
+  vncserver :1 -localhost no -geometry "${VNC_GEOMETRY:-1600x900}" -depth 24
 fi
 
 # The browser UI is now our own HTML/CSS/JS app served by the Nginx gateway.
 # The VNC server remains private and is reached by Guacamole/guacd internally.
 echo "[RemoteX] Custom RemoteX UI is served on private port 8080."
-echo "[RemoteX] Local VNC target for a Guacamole connection: 127.0.0.1:5901"
+echo "[RemoteX] Local VNC target for Guacamole: host.docker.internal:5901"
 echo "[RemoteX] VNC password file: $CONFIG_DIR/vnc-password"
 echo "[RemoteX] noVNC and websockify are not used by the client."
