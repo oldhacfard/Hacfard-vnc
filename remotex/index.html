@@ -81,8 +81,13 @@ function connect(c){
  if(!window.Guacamole){toast('Guacamole istemci kitaplığı yüklenemedi.');return}
  if(client){try{client.disconnect()}catch{}client=null}
  selected=c;$('activeName').textContent=c.name;$('protocol').textContent=c.protocol.toUpperCase();$('display').innerHTML='';
- const tunnel=new Guacamole.WebSocketTunnel(gateway().replace(/^http/,'ws')+'/websocket-tunnel?token='+encodeURIComponent(auth.authToken));
+ const tunnel=new Guacamole.WebSocketTunnel(gateway().replace(/^http/,'ws')+'/websocket-tunnel');
  client=new Guacamole.Client(tunnel);const element=client.getDisplay().getElement();element.style.maxWidth='100%';element.style.maxHeight='100%';$('display').appendChild(element);
+ const mouse=new Guacamole.Mouse(element);
+ mouse.onmousedown=mouse.onmouseup=mouse.onmousemove=state=>client.sendMouseState(state);
+ const keyboard=new Guacamole.Keyboard(document);
+ keyboard.onkeydown=keysym=>client.sendKeyEvent(1,keysym);
+ keyboard.onkeyup=keysym=>client.sendKeyEvent(0,keysym);
  client.onerror=err=>{log('Bağlantı hatası: '+(err.message||err));status('Bağlantı hatası','bad')};
  client.onstatechange=s=>{const labels={0:'Bağlantı kuruluyor',1:'Bekliyor',2:'Bağlanıyor',3:'Bağlandı',4:'Bağlantı kesiliyor',5:'Bağlantı kesildi'};status(labels[s]||'Durum '+s,s===3?'on':s===5?'bad':'');if(s===3){started=Date.now();$('disconnect').disabled=false;$('reconnect').disabled=false;log(c.name+' oturumu açıldı.')}if(s===5){$('disconnect').disabled=true;clearInterval(tick)}};
  const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png'});
