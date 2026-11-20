@@ -59,7 +59,7 @@ $('gateway').value=location.origin;
 async function api(path,options={}){const res=await fetch(gateway()+path,options);const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.message||data.error||('HTTP '+res.status));return data}
 async function login(username,password){
   const body=new URLSearchParams({username,password});
-  auth=await api('/api/session/data/postgresql/auth',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+  auth=await api('/api/tokens',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
   $('password').value='';$('loginCover').classList.add('hidden');$('logoutBtn').disabled=false;
   $('loginBtn').disabled=true;log('Gateway kimlik doğrulaması başarılı.');await loadConnections();
 }
@@ -74,11 +74,11 @@ function connect(c){
  if(!window.Guacamole){toast('Guacamole istemci kitaplığı yüklenemedi.');return}
  if(client){try{client.disconnect()}catch{}client=null}
  selected=c;$('activeName').textContent=c.name;$('protocol').textContent=c.protocol.toUpperCase();$('display').innerHTML='';
- const tunnel=new Guacamole.WebSocketTunnel(gateway().replace(/^http/,'ws')+'/websocket-tunnel');
+ const tunnel=new Guacamole.WebSocketTunnel(gateway().replace(/^http/,'ws')+'/websocket-tunnel?token='+encodeURIComponent(auth.authToken));
  client=new Guacamole.Client(tunnel);const element=client.getDisplay().getElement();element.style.maxWidth='100%';element.style.maxHeight='100%';$('display').appendChild(element);
  client.onerror=err=>{log('Bağlantı hatası: '+(err.message||err));status('Bağlantı hatası','bad')};
  client.onstatechange=s=>{const labels={0:'Bağlantı kuruluyor',1:'Bekliyor',2:'Bağlanıyor',3:'Bağlandı',4:'Bağlantı kesiliyor',5:'Bağlantı kesildi'};status(labels[s]||'Durum '+s,s===3?'on':s===5?'bad':'');if(s===3){started=Date.now();$('disconnect').disabled=false;$('reconnect').disabled=false;log(c.name+' oturumu açıldı.')}if(s===5){$('disconnect').disabled=true;clearInterval(tick)}};
- const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png',GUAC_TOKEN:auth.authToken});
+ const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png'});
  
  try{client.connect(params.toString())}catch(e){log(e.message);status('Bağlantı başlatılamadı','bad')}
  tick=setInterval(()=>{if(started)$('elapsed').textContent=Math.floor((Date.now()-started)/60000)+'m '+Math.floor(((Date.now()-started)/1000)%60)+'s'},1000);
@@ -90,6 +90,19 @@ $('logoutBtn').onclick=()=>{disconnect();auth=null;connections=[];$('loginCover'
 $('disconnect').onclick=disconnect;$('reconnect').onclick=()=>{if(selected)connect(selected)};
 $('fullscreen').onclick=()=>{if(!document.fullscreenElement)$('screen').requestFullscreen?.();else document.exitFullscreen?.()};
 $('fitBtn').onclick=()=>{if(client)client.getDisplay().scale($('screen').clientWidth/$('screen').clientHeight,'fit');toast('Görüntü ölçeği güncellendi')};
+$('quickProfile').onchange=()=>{$('rdpUserWrap').classList.toggle('hidden',$('quickProfile').value!=='winrdp')};
+$('addQuick').onclick=async()=>{
+ if(!auth){toast('Önce gateway girişini yap');return}
+ const profile=$('quickProfile').value, password=$('quickPassword').value;
+ if(!password){toast('Bağlantı parolasını gir');return}
+ const cfg=profile==='linux'?{name:'Linux XFCE',protocol:'vnc',port:'5901'}:profile==='winvnc'?{name:'Windows 10 Console',protocol:'vnc',port:'5902'}:{name:'Windows 10 Desktop',protocol:'rdp',port:'3389'};
+ const parameters={hostname:'host.docker.internal',port:cfg.port,password};
+ if(cfg.protocol==='rdp'){parameters.username=$('rdpUser').value||'Administrator';parameters.security:'any';parameters['ignore-cert']='true'}
+ try{
+  const response=await api('/api/session/data/'+encodeURIComponent(auth.dataSource)+'/connections?token='+encodeURIComponent(auth.authToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parentIdentifier:'ROOT',name:cfg.name,protocol:cfg.protocol,parameters,attributes:{'max-connections':'5','max-connections-per-user':'2',weight:'1'}})});
+  $('quickPassword').value='';await loadConnections();toast(cfg.name+' bağlantısı oluşturuldu');log('Connection profile created: '+cfg.name);
+ }catch(err){toast('Bağlantı oluşturulamadı: '+err.message);log(err.message)}
+};
 $('quality').oninput=()=>{$('qualityValue').textContent=$('quality').value};
 $('sendCtrlAltDel').onclick=()=>{if(client)client.sendKeyEvent(1,0xffe3),client.sendKeyEvent(1,0xffe9),client.sendKeyEvent(1,0xffff),client.sendKeyEvent(0,0xffff),client.sendKeyEvent(0,0xffe9),client.sendKeyEvent(0,0xffe3);else toast('Önce bağlantı aç')};
 $('keyboardBtn').onclick=()=>{$('display').tabIndex=0;$('display').focus();toast('Klavye odağı ekrana verildi')};
