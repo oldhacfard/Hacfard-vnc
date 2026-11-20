@@ -6,10 +6,10 @@ RemoteX runs Windows 10 as a QEMU guest inside the Codespace. This is nested vir
 
 1. Upload your own licensed Windows 10 ISO to the Codespace home directory as ~/Windows10.iso.
 2. Run bash server/windows10-start.sh. QEMU is installed by the main bootstrap; alternatively run bash server/windows10-install.sh.
-3. The first boot creates a 64 GB QCOW2 disk and boots the ISO for installation.
+3. The first boot creates a 64 GB QCOW2 disk using an IDE-compatible virtual controller and boots the ISO for installation. If installation needs to resume from the ISO after the disk has been created, run WINDOWS_BOOT_ORDER=d bash server/windows10-start.sh.
 4. Open the RemoteX UI and sign in. The console password is shown by cat ~/.config/hacfard-remotex/windows10-vnc-password.
 5. Create a Windows 10 kurulum ekranı · VNC connection. Complete Windows Setup.
-6. Later starts boot from the disk. Enable Remote Desktop in Windows, configure a strong account password and allow RDP through Windows Firewall.
+6. Later starts boot from the disk. Use Windows 10 Pro or Enterprise for incoming RDP (Windows Home does not include the built-in RDP host). Enable Remote Desktop, configure a strong account password and allow RDP through Windows Firewall.
 7. Create a Windows 10 masaüstü · RDP connection using the Windows account credentials.
 
 ## Resources and storage
