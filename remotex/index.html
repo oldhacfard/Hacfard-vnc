@@ -101,7 +101,9 @@ $('loginBtn').onclick=()=>{$('loginCover').classList.remove('hidden')};
 $('logoutBtn').onclick=()=>{disconnect();auth=null;connections=[];$('loginCover').classList.remove('hidden');$('logoutBtn').disabled=true;$('loginBtn').disabled=false;};
 $('disconnect').onclick=disconnect;$('reconnect').onclick=()=>{if(selected)connect(selected)};
 $('fullscreen').onclick=()=>{if(!document.fullscreenElement)$('screen').requestFullscreen?.();else document.exitFullscreen?.()};
-function fitDisplay(){if(!client)return;const d=client.getDisplay();const w=d.getWidth(),h=d.getHeight();if(w>0&&h>0)d.scale(Math.min($('screen').clientWidth/w,$('screen').clientHeight/h))}\n$('fitBtn').onclick=()=>{fitDisplay();toast('Görüntü ölçeği güncellendi')};\n$('fit').onchange=()=>{if($('fit').value==='fit')fitDisplay();else if(client)client.getDisplay().scale(1)};
+function fitDisplay(){if(!client)return;const d=client.getDisplay();const w=d.getWidth(),h=d.getHeight();if(w>0&&h>0)d.scale(Math.min($('screen').clientWidth/w,$('screen').clientHeight/h))}
+$('fitBtn').onclick=()=>{fitDisplay();toast('Görüntü ölçeği güncellendi')};
+$('fit').onchange=()=>{if($('fit').value==='fit')fitDisplay();else if(client)client.getDisplay().scale(1)};
 $('quickProfile').onchange=()=>{$('rdpUserWrap').classList.toggle('hidden',$('quickProfile').value!=='winrdp')};
 $('addQuick').onclick=async()=>{
  if(!auth){toast('Önce gateway girişini yap');return}
