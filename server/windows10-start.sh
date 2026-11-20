@@ -9,10 +9,10 @@ mkdir -p "$DIR" "$CONFIG" "$(dirname "$LOG")"
 chmod 700 "$DIR" "$CONFIG"
 command -v qemu-system-x86_64 >/dev/null 2>&1 || { echo "Run bash server/windows10-install.sh first." >&2; exit 1; }
 [[ -s "$ISO" ]] || { echo "Windows ISO not found: $ISO. Supply your own licensed ISO." >&2; exit 1; }
-BOOT=c
+BOOT="${WINDOWS_BOOT_ORDER:-c}"
 if [[ ! -s "$DISK" ]]; then
   bash server/windows10-create-disk.sh
-  BOOT=d
+  BOOT="${WINDOWS_BOOT_ORDER:-d}"
 fi
 if pgrep -af '[q]emu-system-x86_64.*windows10.qcow2' >/dev/null; then echo "[RemoteX VM] Windows VM already appears to be running."; exit 0; fi
 ACCEL=tcg
@@ -25,9 +25,10 @@ VNC_PASS="$(cat "$CONFIG/windows10-vnc-password")"
 echo "[RemoteX VM] Starting Windows 10 (accelerator: $ACCEL, boot: $BOOT)"
 nohup qemu-system-x86_64 \
   -name Hacfard-Windows10 \
-  -machine q35,accel="$ACCEL" \
+  -S \
+  -machine pc,accel="$ACCEL" \
   -cpu max -smp "${VM_CPUS:-2}" -m "${VM_MEMORY:-4096}" \
-  -drive "file=$DISK,if=virtio,format=qcow2" \
+  -drive "file=$DISK,if=ide,format=qcow2" \
   -cdrom "$ISO" -boot order="$BOOT" \
   -vga std -display none -vnc 0.0.0.0:2,password=on \
   -device e1000,netdev=net0 -netdev user,id=net0,hostfwd=tcp::3389-:3389 \
@@ -38,9 +39,8 @@ nohup qemu-system-x86_64 \
 echo $! > "$DIR/launcher.pid"
 sleep 3
 if ! kill -0 "$(cat "$DIR/launcher.pid")" 2>/dev/null; then echo "[RemoteX VM] QEMU failed:"; tail -n 80 "$LOG"; exit 1; fi
-if command -v socat >/dev/null 2>&1; then
-  printf 'change vnc password %s\n' "$VNC_PASS" | socat - UNIX-CONNECT:"$DIR/monitor.sock" >/dev/null
-fi
+if ! command -v socat >/dev/null 2>&1; then echo "socat is required to initialize the protected VNC console." >&2; kill "$(cat "$DIR/launcher.pid")" 2>/dev/null || true; exit 1; fi
+printf 'change vnc password %s\ncont\n' "$VNC_PASS" | socat - UNIX-CONNECT:"$DIR/monitor.sock" >/dev/null
 unset VNC_PASS
 echo "[RemoteX VM] QEMU started. Console: host.docker.internal:5902"
 echo "[RemoteX VM] VNC password is stored privately in $CONFIG/windows10-vnc-password"
