@@ -20,7 +20,7 @@ case "${ID:-unknown}" in
     as_root apt-get update
     as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
       xfce4 xfce4-terminal dbus-x11 tigervnc-standalone-server tigervnc-tools \
-      ca-certificates curl procps python3
+      ca-certificates curl procps python3 qemu-system-x86 qemu-utils ovmf socat
     ;;
   alpine)
     # Alpine support is best-effort. The recommended Codespaces image remains Ubuntu.
