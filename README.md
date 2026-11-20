@@ -35,7 +35,7 @@ Windows is not automatically downloaded or licensed.
 
 1. Upload your own licensed ISO to the Codespace as ~/Windows10.iso.
 2. Run bash server/windows10-start.sh in the Codespaces terminal.
-3. First boot creates a 64 GB QCOW2 disk and boots the Windows installer ISO.
+3. First boot creates a 64 GB QCOW2 disk and boots the Windows installer ISO. Use a Windows 10 Pro/Enterprise ISO if you need the later RDP desktop connection; Home editions do not provide the built-in RDP host.
 4. Get the generated console password with cat ~/.config/hacfard-remotex/windows10-vnc-password.
 5. In the RemoteX panel select **Windows 10 kurulum ekranı · VNC**, enter that password, and create the connection.
 6. After installing Windows, later starts boot from the virtual disk. Enable Remote Desktop in Windows and create a strong Windows account password.
