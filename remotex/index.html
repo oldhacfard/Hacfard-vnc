@@ -90,7 +90,7 @@ function connect(c){
  keyboard.onkeyup=keysym=>client.sendKeyEvent(0,keysym);
  client.onerror=err=>{log('Bağlantı hatası: '+(err.message||err));status('Bağlantı hatası','bad')};
  client.onstatechange=s=>{const labels={0:'Bağlantı kuruluyor',1:'Bekliyor',2:'Bağlanıyor',3:'Bağlandı',4:'Bağlantı kesiliyor',5:'Bağlantı kesildi'};status(labels[s]||'Durum '+s,s===3?'on':s===5?'bad':'');if(s===3){started=Date.now();$('disconnect').disabled=false;$('reconnect').disabled=false;log(c.name+' oturumu açıldı.')}if(s===5){$('disconnect').disabled=true;clearInterval(tick)}};
- const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png'});
+ const params=new URLSearchParams({GUAC_DATA_SOURCE:auth.dataSource,GUAC_ID:c.identifier,GUAC_TYPE:c.protocol,GUAC_WIDTH:String($('screen').clientWidth),GUAC_HEIGHT:String($('screen').clientHeight),GUAC_DPI:'96',GUAC_AUDIO:'audio/L16',GUAC_IMAGE:'image/png',token:auth.authToken});
  
  try{client.connect(params.toString())}catch(e){log(e.message);status('Bağlantı başlatılamadı','bad')}
  tick=setInterval(()=>{if(started)$('elapsed').textContent=Math.floor((Date.now()-started)/60000)+'m '+Math.floor(((Date.now()-started)/1000)%60)+'s'},1000);
