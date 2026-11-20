@@ -2,56 +2,66 @@
   <img src="remotex/preview.svg" alt="Hacfard RemoteX custom workspace preview" width="100%">
   <h1>Hacfard RemoteX</h1>
   <p><strong>Custom remote desktop workspace · built by oldhacfard</strong></p>
-  <p>VNC · RDP · SSH · Mobile-first · Custom HTML/CSS/JS</p>
+  <p>Linux XFCE · Windows 10 QEMU · VNC · RDP · Mobile-first</p>
 </div>
 
 ---
 
-## ✨ Overview
+## Overview
 
-Hacfard RemoteX is a self-hostable remote-access workspace with its own custom browser interface. The frontend is not the noVNC UI: it is a purpose-built HTML/CSS/JavaScript workspace. Apache Guacamole and guacd handle the remote protocols behind the interface.
-
-## Preview
-
-The image above is a static UI preview. Open the live app from the private Codespaces port **8080** after setup.
+Hacfard RemoteX is a self-hostable remote desktop workspace with a custom HTML/CSS/JavaScript interface. Apache Guacamole and guacd proxy VNC/RDP sessions. The browser UI does not use the noVNC interface.
 
 ## Features
 
-- Custom black-and-white inspired responsive interface
-- Gateway login and saved-connection list
-- Guacamole WebSocket tunnel for supported remote protocols
-- Fullscreen, connection state, session timer and touch-friendly layout
-- Linux XFCE desktop through a configured VNC connection
-- Windows guests through a configured RDP connection after Windows is installed and RDP is enabled
-- No noVNC browser interface and no noVNC JavaScript client
+- Responsive black/white custom workspace.
+- Linux XFCE desktop served over password-protected VNC.
+- Experimental Windows 10 guest using QEMU and a QCOW2 virtual disk.
+- Quick connection profiles for Linux VNC, Windows installation-console VNC, and Windows RDP.
+- Guacamole authentication and WebSocket tunnel behind Nginx.
+- Private Codespaces port 8080.
 
-## Quick start
+## Start in GitHub Codespaces
 
-1. Open this repository in GitHub Codespaces.
-2. Wait for the devcontainer bootstrap to finish.
-3. Keep port **8080** private. Port 6080 is no longer used.
-4. Open the **RemoteX Custom UI** port **8080**.
-5. Sign in with your Guacamole account.
-6. Create or select a VNC/RDP connection in the gateway administration UI.
+1. Open this repository in GitHub Codespaces using the included devcontainer.
+2. Wait for server/bootstrap.sh to finish. It installs XFCE, TigerVNC, QEMU, Docker services, Guacamole, PostgreSQL, and Nginx.
+3. Keep port **8080 private** and open the **RemoteX Custom UI** forwarded port.
+4. Sign in to Guacamole. On a fresh database the initial account is normally **guacadmin / guacadmin**; change that password immediately.
+5. In the RemoteX panel, select **Linux XFCE · VNC** and enter the Linux VNC password shown by the terminal command: cat ~/.config/hacfard-remotex/vnc-password
+6. Click **Create connection**, then select the saved Linux connection.
 
-On first login, the initial Guacamole account may be `guacadmin / guacadmin`. Change the password immediately.
+## Windows 10 guest (experimental)
+
+Windows is not automatically downloaded or licensed.
+
+1. Upload your own licensed ISO to the Codespace as ~/Windows10.iso.
+2. Run bash server/windows10-start.sh in the Codespaces terminal.
+3. First boot creates a 64 GB QCOW2 disk and boots the Windows installer ISO.
+4. Get the generated console password with cat ~/.config/hacfard-remotex/windows10-vnc-password.
+5. In the RemoteX panel select **Windows 10 kurulum ekranı · VNC**, enter that password, and create the connection.
+6. After installing Windows, later starts boot from the virtual disk. Enable Remote Desktop in Windows and create a strong Windows account password.
+7. Select **Windows 10 masaüstü · RDP**, enter the Windows account password, and create the RDP connection.
+
+Defaults are 2 vCPUs, 4 GB RAM and a dynamically allocated 64 GB disk. Set VM_CPUS, VM_MEMORY, and VM_DISK_SIZE before first start to change these values.
+
+## VM limitations
+
+- Codespaces is a development environment, not a dedicated VM host.
+- Nested KVM may be unavailable. QEMU TCG software emulation can make Windows very slow or impractical.
+- The Linux desktop is an XFCE session in the Codespace container, not a separate QEMU guest.
+- Windows installation media and license are not included. Windows 10 standard support ended on 14 October 2025.
+- Codespaces has usage limits and may stop when idle. This is not a guaranteed 24/7 VPS.
 
 ## Architecture
 
-- `remotex/index.html` — custom interface and client-side session handling
-- `remotex/preview.svg` — static visual preview used by this README
-- `server/` — Linux desktop lifecycle, setup and recovery scripts
-- `docker-compose.yml` — Guacamole, guacd, PostgreSQL and Nginx
-- Nginx serves the custom UI and proxies only the Guacamole API/WebSocket tunnel
+- remotex/index.html — custom client UI and connection creation.
+- docker-compose.yml — Guacamole, guacd, PostgreSQL, Nginx.
+- server/bootstrap.sh — first-time installation and startup.
+- server/windows10-*.sh — QEMU Windows guest lifecycle.
+- server/nginx.conf — same-origin API and WebSocket reverse proxy.
 
-## Important notes
+## Security
 
-- The Guacamole JavaScript client library is loaded from a CDN; the UI requires network access to that CDN.
-- Remote connections must already exist in Guacamole and have reachable target hosts.
-- For the local XFCE VNC target, use a VNC connection reachable from `guacd`; do not expose port 5901 publicly.
-- A Windows 10 VM is experimental. Codespaces may not expose nested virtualization; software emulation can be extremely slow.
-- Keep all forwarded ports private. Never commit passwords, tokens, ISO files or VM disks.
-- This project does not include a Windows license or Windows installation media.
+Keep forwarded port 8080 private. Do not forward 5901, 5902, 3389, or Guacamole's internal ports publicly. Do not commit passwords, Windows ISO files, VM disks, database credentials, or tokens. Change the default Guacamole password immediately.
 
 ## License
 
