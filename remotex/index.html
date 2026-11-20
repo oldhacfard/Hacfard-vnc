@@ -104,19 +104,6 @@ $('addQuick').onclick=async()=>{
  if(!password){toast('Bağlantı parolasını gir');return}
  const cfg=profile==='linux'?{name:'Linux XFCE',protocol:'vnc',port:'5901'}:profile==='winvnc'?{name:'Windows 10 Console',protocol:'vnc',port:'5902'}:{name:'Windows 10 Desktop',protocol:'rdp',port:'3389'};
  const parameters={hostname:'host.docker.internal',port:cfg.port,password};
- if(cfg.protocol==='rdp'){parameters.username=$('rdpUser').value||'Administrator';parameters.security:'any';parameters['ignore-cert']='true'}
- try{
-  const response=await api('/api/session/data/'+encodeURIComponent(auth.dataSource)+'/connections?token='+encodeURIComponent(auth.authToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parentIdentifier:'ROOT',name:cfg.name,protocol:cfg.protocol,parameters,attributes:{'max-connections':'5','max-connections-per-user':'2',weight:'1'}})});
-  $('quickPassword').value='';await loadConnections();toast(cfg.name+' bağlantısı oluşturuldu');log('Connection profile created: '+cfg.name);
- }catch(err){toast('Bağlantı oluşturulamadı: '+err.message);log(err.message)}
-};
-$('quickProfile').onchange=()=>{$('rdpUserWrap').classList.toggle('hidden',$('quickProfile').value!=='winrdp')};
-$('addQuick').onclick=async()=>{
- if(!auth){toast('Önce gateway girişini yap');return}
- const profile=$('quickProfile').value, password=$('quickPassword').value;
- if(!password){toast('Bağlantı parolasını gir');return}
- const cfg=profile==='linux'?{name:'Linux XFCE',protocol:'vnc',port:'5901'}:profile==='winvnc'?{name:'Windows 10 Console',protocol:'vnc',port:'5902'}:{name:'Windows 10 Desktop',protocol:'rdp',port:'3389'};
- const parameters={hostname:'host.docker.internal',port:cfg.port,password};
  if(cfg.protocol==='rdp'){parameters.username=$('rdpUser').value||'Administrator';parameters.security='any';parameters['ignore-cert']='true'}
  try{
   await api('/api/session/data/'+encodeURIComponent(auth.dataSource)+'/connections?token='+encodeURIComponent(auth.authToken),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({parentIdentifier:'ROOT',name:cfg.name,protocol:cfg.protocol,parameters,attributes:{'max-connections':'5','max-connections-per-user':'2',weight:'1'}})});
