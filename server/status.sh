@@ -20,3 +20,7 @@ docker compose --env-file server/.env exec -T postgres sh -c 'PGPASSWORD="$POSTG
 echo
 echo "=== VNC processes ==="
 pgrep -af 'Xtigervnc|Xvnc|websockify' | head -n 8 || true
+
+echo
+echo "=== Windows VM ==="
+bash server/windows10-status.sh 2>&1 || true
